@@ -4,50 +4,64 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 3001;
 
+app.set('view engine','ejs');
+app.set('views','public');
+
+
+
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({ secret: 'your-secret-key', resave: true, saveUninitialized: true }));
+app.use(session({ secret: '2Dasaleenasecretkey', resave: false, saveUninitialized: true }));
 
 // Predefined username and password for validation
 const validUsername = 'admin';
 const validPassword = 'password123';
-
-// Serve static files (Bootstrap and HTML)
-app.use(express.static('public'));
+let data;
 
 
-app.get('/login', (req, res) => {
-    res.sendFile(__dirname + '/public/login.html');
+
+app.get('/', (req, res) => {
+    data="";
+    res.render('login',{data:data});
 });
 
 // Login route
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
+    req.session.user=username;
     if (username === validUsername && password === validPassword) {
         req.session.authenticated = true;
-        res.redirect('/home');
+        res.render('index');
     } else {
-        res.status(401).send('Incorrect username or password');
+        data="Incorrect username or password";
+        res.render('login',{data:data});
     }
 });
 
 // Home route (protected)
 app.get('/home', (req, res) => {
     if (req.session.authenticated) {
-        res.sendFile(__dirname + '/public/index.html');
+        res.render('index');
     } else {
-        res.redirect('/login');
+        data="";
+        res.render('login',{data:data});
     }
 });
 
 // Logout route
-app.get('/logout', (req, res) => {
-    req.session.authenticated = false;
-    res.redirect('/login');
-   
+app.get('/logout', (req, res) =>{
+    data="successfully logged out";
+    req.session.user=null;
+    req.session.save(err=>{
+        if(err)
+     console.log(err); 
+    });  
+    res.render('login',{data:data});
 });
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}/login.html`);
+    console.log(`Server is running on http://localhost:${port}`);
 });
+
+
