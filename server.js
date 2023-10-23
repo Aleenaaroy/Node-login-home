@@ -26,7 +26,7 @@ let data;
 
 // Middleware to check if the user is authenticated
 const isAuthenticated = (req, res, next) => {
-  console.log(req.session);
+  //console.log(req.session);
   if (req.session.isAuthenticated) {
     next();
   } else {
@@ -74,7 +74,6 @@ app.post("/login", (req, res) => {
 
 // Logout route
 app.get("/logout", (req, res) => {
-  //data = "successfully logged out";
   req.session.isAuthenticated = false;
   res.redirect("/"); 
 });
